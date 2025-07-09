@@ -131,8 +131,10 @@ class TilePrediction(object):
         else:
             try:
                 mpp = slide.mpp[0]
+                print(f"successfully fetched mpp {slide.mpp[0]} and using it to compute wsi_highest_magnification")
             except:
                 print('slide mpp is not available as "slide.mpp"\n use --mpp_level_0 to enter mpp at level 0 manually.')
+        print(f"required key for mpp2mag is {.25 * round(float(mpp) / .25)}")
         wsi_highest_magnification = mpp2mag[.25 * round(float(mpp) / .25)]
         downsample = wsi_highest_magnification / args.mask_magnification
         slide_level_dimensions = (int(np.round(slide.level_dimensions[0][0]/downsample)),
@@ -307,14 +309,14 @@ def main():
 
         if not os.path.exists(savename):
             print('Processing', slide)
-            try:
-                segmentation = predictor.run(slide)
-                segmentation = remove_small_objects(segmentation == 255, 50**2)
-                segmentation = (segmentation*255).astype(np.uint8)
-                cv2.imwrite(savename, segmentation)
-            except Exception as e:
-                print(e,'\nSkipped slide', basename)
-                continue
+            # try:
+            segmentation = predictor.run(slide)
+            segmentation = remove_small_objects(segmentation == 255, 50**2)
+            segmentation = (segmentation*255).astype(np.uint8)
+            cv2.imwrite(savename, segmentation)
+            # except Exception as e:
+            #     print(e,'\nSkipped slide', basename)
+            #     continue
 
 #############################################################################################
 
