@@ -122,7 +122,9 @@ class TilePrediction(object):
         :param filename:
         :return:
         """
-        mpp2mag = {.25: 40, .5: 20, 1: 10}
+        # mpp2mag = {.25: 40, .5: 20, 1: 10, 4: 2.5} # following logic of already implemented keys, but leads to OOM
+        # mpp2mag = {.25: 40, .5: 20, 1: 10, 4: 5} # OOM
+        mpp2mag = {.25: 40, .5: 20, 1: 10, 4: 10}
         reader = get_reader_impl(filename)
         slide = reader(filename)
         if args.mpp_level_0:
