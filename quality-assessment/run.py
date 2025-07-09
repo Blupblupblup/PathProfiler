@@ -84,7 +84,8 @@ def main():
         os.makedirs(args.save_folder)
     dir_list = glob.glob(path.join(args.slide_dir, args.slide_id))
 
-    mpp2mag = {.25: 40, .5: 20, 1: 10}
+    # mpp2mag = {.25: 40, .5: 20, 1: 10}
+    mpp2mag = {.25: 40, .5: 20, 1: 10, 4: 10} # matching incorrect key:val inserted in tissue-segmentation/run.py
     for filename in dir_list:
         start = timeit.default_timer()
         basename = path.basename(filename)
@@ -116,6 +117,7 @@ def main():
                 print('slide mpp is not available as "slide.mpp"\n use --mpp_level_0 to enter mpp at level 0 manually.')
                 continue
         print('Processing', basename)
+        print(f"required key for mpp2mag is {.25 * round(float(mpp) / .25)}")
         wsi_highest_magnification = mpp2mag[.25 * round(float(mpp) / .25)]
         downsample = wsi_highest_magnification / 5.  # Model is trained for tiles at 5X
         w, h = int(np.round(slide.level_dimensions[0][0]/downsample)), int(np.round(slide.level_dimensions[0][1]/downsample))
@@ -134,6 +136,7 @@ def main():
                 'other_artfcts': output[:,:,5],
                 'processed_region': output[:,:,6]
             }
+            print(f"end of try")
         finally:
             store.rmdir()
         stop = timeit.default_timer()

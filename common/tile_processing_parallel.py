@@ -26,6 +26,7 @@ class TileWorker(Process):
         output = zarr.open(self.store_path, mode='r+')
         slide = reader(self.slide_path)
         while True:
+            print("read queue_in item")
             data_in = self.queue_in.get()
             if data_in is None:
                 break
@@ -38,6 +39,7 @@ class TileWorker(Process):
                 output[y:y+self.tile_size, x:x+self.tile_size] = tile
             else:
                 output[y//self.tile_size, x//self.tile_size] = tile
+            print("processed queue_in item")
 
 def _get_mask(mask_path):
     try:
@@ -76,17 +78,22 @@ def process_tiles(slide_path, tile_size, tile_magnification, stride, downsample,
         worker.start()
 
     for x in range(0, width, stride):
+        print(f"tile x: {x}")
         for y in range(0, height, stride):
+            print(f"tile y: {y}")
             tile_mask = mask[int(y / mask_ds): mask_tile_size + int(y / mask_ds),
                              int(x / mask_ds): mask_tile_size + int(x / mask_ds)]
             if tile_mask.mean() > mask_ratio:
                 queue_in.put((x, y))
 
+    print(f"end of tiles loop")
     for _ in range(n_workers):
         queue_in.put(None)
-        
+
+    print(f"end of queue_in loop")
     for worker in workers:
         worker.join()
-                
+
+    print(f"end of worker loop")
     output = output_transform(output)
     return output[:-pad_h, :-pad_w] if unpad else output[:]
